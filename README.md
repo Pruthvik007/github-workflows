@@ -1,14 +1,17 @@
 # github-workflows
 
-Reusable GitHub Actions workflows for building and publishing my libraries to GitHub Packages. Each library's own workflow file only calls one of these, so a fix here reaches every library.
+Reusable GitHub Actions workflows for building my apps and libraries and publishing the libraries to GitHub Packages. Each repository's own workflow file only calls one of these, so a fix here reaches every repository.
 
 | Workflow | What it does |
 |---|---|
 | `gradle-library.yml` | Builds and tests on every push and pull request. Publishes the `-SNAPSHOT` version on every push to `main`, and from the "Run workflow" button (one module or all). |
 | `npm-library.yml` | Builds, lints and tests on every push and pull request. On `main`, Changesets keeps a "Version Packages" pull request open while changesets are pending; merging it publishes, tags and creates GitHub Releases. The "Run workflow" button publishes a canary (`0.0.0-canary-<timestamp>`, dist-tag `canary`) from any branch with a pending changeset. |
 | `pr-title.yml` | Checks that pull request titles follow Conventional Commits (`feat:`, `fix:`, `chore:` ...). |
+| `gradle-app.yml` | Apps: `./gradlew build` with Java 21. |
+| `maven-app.yml` | Apps: `./mvnw -B verify` with Java 21. |
+| `node-app.yml` | Apps: `npm ci`, then `lint` and `test` when the scripts exist, then `build`. |
 
-Publish jobs are skipped while the calling repository is a template. Actions is disabled on the `template-*` repositories themselves; repositories created from them start with Actions on.
+The app workflows only build and test, and take a `working-directory` input for repositories that keep the app in a subfolder. Publish jobs are skipped while the calling repository is a template. Actions is disabled on the `template-*` repositories themselves; repositories created from them start with Actions on.
 
 ## Calling them
 
