@@ -7,6 +7,12 @@ on:
         description: Folder holding package.json
         type: string
         default: "."
+    secrets:
+      PACKAGES_TOKEN:
+        required: false
+      BUILD_ENV:
+        description: NAME=value lines exported to the build step, for apps that need keys at build time
+        required: false
 
 permissions:
   contents: read
@@ -31,6 +37,14 @@ jobs:
       - run: npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
+          PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
       - run: npm run lint --if-present
       - run: npm test --if-present
+      - name: Load build environment
+        env:
+          BUILD_ENV: ${{ secrets.BUILD_ENV }}
+        run: |
+          if [ -n "$BUILD_ENV" ]; then
+            printf '%s\n' "$BUILD_ENV" >> "$GITHUB_ENV"
+          fi
       - run: npm run build
