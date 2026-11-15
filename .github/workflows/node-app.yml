@@ -47,4 +47,4 @@ jobs:
           if [ -n "$BUILD_ENV" ]; then
             printf '%s\n' "$BUILD_ENV" >> "$GITHUB_ENV"
           fi
-      - run: npm run build
+      - run: npm run build --if-present
