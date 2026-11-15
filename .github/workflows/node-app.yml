@@ -1,0 +1,36 @@
+name: Node app
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: Folder holding package.json
+        type: string
+        default: "."
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+          registry-url: https://npm.pkg.github.com
+      - run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
+      - run: npm run lint --if-present
+      - run: npm test --if-present
+      - run: npm run build
