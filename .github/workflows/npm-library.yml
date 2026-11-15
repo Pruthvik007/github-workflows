@@ -48,6 +48,8 @@ jobs:
       - uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
           publish-script: npm run release
+          # changeset version bumps package.json only; keep the lockfile's workspace versions in step
+          version-script: npx changeset version && npm install --package-lock-only
           commit-message: "chore: version packages"
           pr-title: "chore: version packages"
         env:
