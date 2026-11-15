@@ -8,7 +8,7 @@ Reusable GitHub Actions workflows for building and publishing my libraries to Gi
 | `npm-library.yml` | Builds, lints and tests on every push and pull request. On `main`, Changesets keeps a "Version Packages" pull request open while changesets are pending; merging it publishes, tags and creates GitHub Releases. The "Run workflow" button publishes a canary (`0.0.0-canary-<timestamp>`, dist-tag `canary`) from any branch with a pending changeset. |
 | `pr-title.yml` | Checks that pull request titles follow Conventional Commits (`feat:`, `fix:`, `chore:` ...). |
 
-Publish jobs are skipped while the calling repository is a template, so `template-*` repositories only build.
+Publish jobs are skipped while the calling repository is a template. Actions is disabled on the `template-*` repositories themselves; repositories created from them start with Actions on.
 
 ## Calling them
 
