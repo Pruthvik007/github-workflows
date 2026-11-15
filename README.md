@@ -9,7 +9,7 @@ Reusable GitHub Actions workflows for building my apps and libraries and publish
 | `pr-title.yml` | Checks that pull request titles follow Conventional Commits (`feat:`, `fix:`, `chore:` ...). |
 | `gradle-app.yml` | Apps: `./gradlew build` with Java 21. |
 | `maven-app.yml` | Apps: `./mvnw -B verify` with Java 21. |
-| `node-app.yml` | Apps: `npm ci`, then `lint` and `test` when the scripts exist, then `build`. Apps that need keys at build time pass them as the `BUILD_ENV` secret, one `NAME=value` per line. |
+| `node-app.yml` | Apps: `npm ci`, then `lint`, `test` and `build`, each when the script exists. Apps that need keys at build time pass them as the `BUILD_ENV` secret, one `NAME=value` per line. |
 
 The app workflows only build and test, and take a `working-directory` input for repositories that keep the app in a subfolder. Publish jobs are skipped while the calling repository is a template. Actions is disabled on the `template-*` repositories themselves; repositories created from them start with Actions on.
 
