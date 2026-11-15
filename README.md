@@ -27,6 +27,6 @@ jobs:
 
 The caller's top-level `permissions` must allow what the jobs here ask for: `contents: read` and `packages: write` for Gradle, and `contents: write`, `pull-requests: write`, `packages: write` for npm. `PACKAGES_TOKEN` is used when the caller has it (needed to read packages from other repositories); otherwise the built-in token is used.
 
-npm libraries also need "Allow GitHub Actions to create and approve pull requests" turned on under Settings → Actions → General, so Changesets can open its pull request.
+npm libraries also need two `package.json` scripts, `release` (`npm run build && changeset publish`) and `version-packages` (`changeset version && npm install --package-lock-only`), and "Allow GitHub Actions to create and approve pull requests" turned on under Settings → Actions → General, so Changesets can open its pull request.
 
 Action versions are pinned to commit SHAs; Dependabot opens a pull request when a new version is out.
