@@ -1,0 +1,17 @@
+name: Code scanning
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  security:
+    uses: ./.github/workflows/security.yml
+    with:
+      languages: actions
