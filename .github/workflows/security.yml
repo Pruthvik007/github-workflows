@@ -1,0 +1,41 @@
+name: Security
+
+on:
+  workflow_call:
+    inputs:
+      languages:
+        description: CodeQL languages, comma separated (java-kotlin, javascript-typescript, actions)
+        type: string
+        required: true
+      build-mode:
+        description: CodeQL build mode; none reads the source without building, autobuild compiles first
+        type: string
+        default: none
+
+permissions:
+  contents: read
+
+# GitHub Free runs code scanning and dependency review only on public repositories.
+jobs:
+  codeql:
+    if: github.event.repository.visibility == 'public'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          languages: ${{ inputs.languages }}
+          build-mode: ${{ inputs.build-mode }}
+      - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+
+  dependency-review:
+    if: github.event.repository.visibility == 'public' && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/dependency-review-action@bbc44d14a204704ccc493733616cd1e93a0321ec # v5.0.1
+        with:
+          fail-on-severity: high
