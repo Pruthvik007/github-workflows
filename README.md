@@ -5,11 +5,12 @@ Reusable GitHub Actions workflows for building my apps and libraries and publish
 | Workflow | What it does |
 |---|---|
 | `gradle-library.yml` | Builds and tests on every push and pull request. Publishes the `-SNAPSHOT` version on every push to `main`, and from the "Run workflow" button (one module or all). |
-| `npm-library.yml` | Builds, lints and tests on every push and pull request. On `main`, Changesets keeps a "Version Packages" pull request open while changesets are pending; merging it publishes, tags and creates GitHub Releases. The "Run workflow" button publishes a canary (`0.0.0-canary-<timestamp>`, dist-tag `canary`) from any branch with a pending changeset. |
+| `npm-library.yml` | Builds, checks formatting (`format:check`, when the script exists), lints and tests on every push and pull request. On `main`, Changesets keeps a "Version Packages" pull request open while changesets are pending; merging it publishes, tags and creates GitHub Releases. The "Run workflow" button publishes a canary (`0.0.0-canary-<timestamp>`, dist-tag `canary`) from any branch with a pending changeset. |
 | `pr-title.yml` | Checks that pull request titles follow Conventional Commits (`feat:`, `fix:`, `chore:` ...). |
 | `gradle-app.yml` | Apps: `./gradlew build` with Java 21. |
 | `maven-app.yml` | Apps: `./mvnw -B verify` with Java 21. |
-| `node-app.yml` | Apps: `npm ci`, then `lint`, `test` and `build`, each when the script exists. Apps that need keys at build time pass them as the `BUILD_ENV` secret, one `NAME=value` per line. |
+| `node-app.yml` | Apps: `npm ci`, then `format:check`, `lint`, `test` and `build`, each when the script exists. Apps that need keys at build time pass them as the `BUILD_ENV` secret, one `NAME=value` per line. |
+| `security.yml` | CodeQL code scanning on every push and pull request, and dependency review on pull requests (fails on high-severity advisories). Public repositories only: GitHub Free has neither for private ones. Input `languages` (`java-kotlin`, `javascript-typescript`, `actions`), optional `build-mode` (`none` by default, `autobuild` for Android). |
 
 The app workflows only build and test, and take a `working-directory` input for repositories that keep the app in a subfolder. Publish jobs are skipped while the calling repository is a template. Actions is disabled on the `template-*` repositories themselves; repositories created from them start with Actions on.
 
@@ -25,7 +26,16 @@ jobs:
     secrets: inherit
 ```
 
-The caller's top-level `permissions` must allow what the jobs here ask for: `contents: read` and `packages: write` for Gradle, and `contents: write`, `pull-requests: write`, `packages: write` for npm. `PACKAGES_TOKEN` is used when the caller has it (needed to read packages from other repositories); otherwise the built-in token is used.
+The caller's top-level `permissions` must allow what the jobs here ask for: `contents: read` and `packages: write` for Gradle, `contents: write`, `pull-requests: write`, `packages: write` for npm, and `security-events: write` for `security.yml`, which is called as its own job:
+
+```yaml
+  security:
+    uses: Pruthvik007/github-workflows/.github/workflows/security.yml@main
+    with:
+      languages: java-kotlin,actions
+```
+
+Gradle builds check formatting themselves: the `java-conventions` plugin from java-commons adds `spotlessCheck` to `./gradlew build`. `PACKAGES_TOKEN` is used when the caller has it (needed to read packages from other repositories); otherwise the built-in token is used.
 
 npm libraries also need two `package.json` scripts, `release` (`npm run build && changeset publish`) and `version-packages` (`changeset version && npm install --package-lock-only`), and "Allow GitHub Actions to create and approve pull requests" turned on under Settings → Actions → General, so Changesets can open its pull request.
 
